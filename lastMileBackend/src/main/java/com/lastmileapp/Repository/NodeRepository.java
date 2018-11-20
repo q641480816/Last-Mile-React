@@ -7,7 +7,7 @@ import java.util.List;
 
 
 public interface NodeRepository extends JpaRepository<Node, Integer> {
-    public List<Node>getNodeByStationID(int stationID);
+    List<Node>getNodeByStationID(int stationID);
 
 
 }

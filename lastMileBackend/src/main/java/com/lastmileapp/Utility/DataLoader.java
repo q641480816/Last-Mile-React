@@ -1,7 +1,9 @@
 package com.lastmileapp.Utility;
 
+import com.lastmileapp.Model.Driver;
 import com.lastmileapp.Model.Node;
 import com.lastmileapp.Model.Station;
+import com.lastmileapp.Repository.DriverRepository;
 import com.lastmileapp.Repository.NodeRepository;
 import com.lastmileapp.Repository.StationRepository;
 import org.springframework.stereotype.Component;
@@ -15,12 +17,15 @@ import java.io.IOException;
 public class DataLoader {
     private StationRepository stationRepository;
     private NodeRepository nodeRepository;
+    private DriverRepository driverRepository;
 
-    public DataLoader(StationRepository stationRepository, NodeRepository nodeRepository) {
+    public DataLoader(StationRepository stationRepository, NodeRepository nodeRepository, DriverRepository driverRepository) {
         this.stationRepository = stationRepository;
         this.nodeRepository=nodeRepository;
+        this.driverRepository = driverRepository;
         LoadNodeData();
         LoadStationData();
+        LoadDriverData();
 
     }
 
@@ -78,5 +83,47 @@ public class DataLoader {
             e.printStackTrace();
         }
     }
+
+    private void LoadDriverData() {
+        File file = new File("src/main/resources/input/driver.csv");
+        String csvFile = file.getAbsolutePath();
+        String line = "";
+        String cvsSplitBy = ",";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+
+                // use comma as separator
+                String[] driver = line.split(cvsSplitBy);
+
+                String plateNum = driver[0];
+                int stationId = Integer.parseInt(driver[1]);
+                int nodeId = Integer.parseInt(driver[2]);
+                String status =driver[3];
+                int capacity = Integer.parseInt(driver[4]);
+                int numOfBooking = Integer.parseInt(driver[5]);
+                int numOfOnboard = Integer.parseInt(driver[6]);
+
+                driverRepository.save(new Driver(plateNum,stationId,nodeId,status,capacity,numOfBooking,numOfOnboard));
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
 
