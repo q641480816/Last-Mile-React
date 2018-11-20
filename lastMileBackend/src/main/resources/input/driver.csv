@@ -1,0 +1,11 @@
+plateNum,stationId,nodeId,status,capacity,numOfOnboard,numOfBooking
+SBS997A,1,2,waiting,5,0,0
+SBS998A,3,1,waiting,5,0,0
+SBS999A,4,1,waiting,5,0,0
+SBS895B,2,1,waiting,5,0,0
+SBS896B,2,2,waiting,5,0,0
+SBS897B,4,2,waiting,5,0,0
+SBS898B,3,1,waiting,5,0,0
+SBS899B,1,1,waiting,5,0,0
+SBS888A,1,3,waiting,5,0,0
+SBS889A,2,3,waiting,5,0,0
