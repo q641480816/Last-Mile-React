@@ -16,17 +16,15 @@ public class DriverService {
     DriverRepository driverRepository;
 
 
-    public List<Driver> getWaitingDriverByStationNode(int stationId, int nodeId) {
+    public List<Driver> getWaitingDriverByStationNode(int stationId) {
         ArrayList<Driver> waitingDrivers = new ArrayList<>();
-        List<Driver> drivers = driverRepository.findByStationIdAndNodeId(stationId, nodeId);
+        List<Driver> drivers = driverRepository.findByStationID(stationId);
         for (Driver d : drivers) {
             if (d.getStatus().equals("waiting")) {
                 waitingDrivers.add(d);
             }
         }
-        System.out.println(waitingDrivers);
         return waitingDrivers;
-
     }
 
     public boolean bookDriver(String plateNum){

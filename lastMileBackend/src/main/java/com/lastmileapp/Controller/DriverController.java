@@ -20,10 +20,10 @@ public class DriverController {
     DriverService driverService;
 
 
-    @RequestMapping(value = "all", method=RequestMethod.GET)
-    public List<Driver> getDriverBystationAndNode(@RequestParam("stationId") int stationId, @RequestParam("nodeId") int nodeId) {
+    @RequestMapping(value = "waiting", method=RequestMethod.GET)
+    public List<Driver> getDriverBystation(@RequestParam("stationId") int stationId) {
 
-        return driverService.getWaitingDriverByStationNode(stationId, nodeId);
+        return driverService.getWaitingDriverByStationNode(stationId);
 
     }
 

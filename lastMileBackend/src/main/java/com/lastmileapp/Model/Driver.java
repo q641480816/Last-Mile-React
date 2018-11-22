@@ -15,8 +15,6 @@ public class Driver {
     @Column(name = "STATION_ID")
     private int stationID;
 
-    @Column(name = "NODE_ID")
-    private int nodeID;
 
     @Column(name="STATUS")
     private String status;
@@ -38,10 +36,9 @@ public class Driver {
 
     }
 
-    public Driver(String plateNum, int stationID, int nodeID, String status, int capacity, int numOfBooking, int numOfOnboard){
+    public Driver(String plateNum, int stationID, String status, int capacity, int numOfBooking, int numOfOnboard){
         this.plateNum = plateNum;
         this.stationID=stationID;
-        this.nodeID=nodeID;
         this.status=status;
         this.numOfBooking=numOfBooking;
         this.numOfOnboard=numOfOnboard;
@@ -73,15 +70,6 @@ public class Driver {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-
-    public int getNodeID() {
-        return nodeID;
-    }
-
-    public void setNodeID(int nodeID) {
-        this.nodeID = nodeID;
     }
 
     public int getNumOfBooking() {

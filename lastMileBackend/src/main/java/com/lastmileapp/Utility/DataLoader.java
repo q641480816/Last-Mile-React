@@ -99,13 +99,12 @@ public class DataLoader {
 
                 String plateNum = driver[0];
                 int stationId = Integer.parseInt(driver[1]);
-                int nodeId = Integer.parseInt(driver[2]);
-                String status =driver[3];
-                int capacity = Integer.parseInt(driver[4]);
-                int numOfBooking = Integer.parseInt(driver[5]);
-                int numOfOnboard = Integer.parseInt(driver[6]);
+                String status =driver[2];
+                int capacity = Integer.parseInt(driver[3]);
+                int numOfBooking = Integer.parseInt(driver[4]);
+                int numOfOnboard = Integer.parseInt(driver[5]);
 
-                driverRepository.save(new Driver(plateNum,stationId,nodeId,status,capacity,numOfBooking,numOfOnboard));
+                driverRepository.save(new Driver(plateNum,stationId,status,capacity,numOfBooking,numOfOnboard));
 
             }
 
