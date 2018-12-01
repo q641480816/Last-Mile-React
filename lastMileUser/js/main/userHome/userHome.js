@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {
     StyleSheet,
     View,
@@ -12,31 +12,90 @@ import Ripple from 'react-native-material-ripple';
 
 import Util from '../../common/util';
 import {responsiveFontSize} from '../../common/responsive';
+import carIcon from '../../common/1.png';
 
 class UserHome extends Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            region: {
+                latitude: 0,
+                longitude: 0,
+                latitudeDelta: 0.03,
+                longitudeDelta: 0.03,
+            },
+            cars: []
+        };
 
+        this.getCurrentLocation = this.getCurrentLocation.bind(this);
         this.openSearchLocation = this.openSearchLocation.bind(this);
+        this.getCars = this.getCars.bind(this);
+    };
+
+    componentDidMount() {
+        //zoom to user
+        this.getCurrentLocation()
+            .then((location) => {
+                console.log(location);
+                this.setState({
+                    region: {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                        latitudeDelta: 0.03,
+                        longitudeDelta: 0.03,
+                    }
+                });
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+    };
+
+    getCars = () => {
+        let position = {latitude: this.state.region.latitude, longitude: this.state.region.longitude};
+        let random = Math.floor((Math.random() * 10) + 1);
+        let cars = [];
+        for (let i = 0; i < random; i++){
+            let lat = Math.random() * 3 /100;
+            let long = Math.random() * 3 /100;
+            cars.push({
+                latitude: Math.random() <= 0.5 ? position.latitude + lat : position.latitude - lat,
+                longitude: Math.random() <= 0.5 ? position.longitude + long : position.longitude - long,
+                id: i
+            })
+        }
+
+        return cars.map((c) => <Marker coordinate={c} key={c.id} image={carIcon}/>)
+    };
+
+    getCurrentLocation = () => {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(location => resolve(location), e => reject(e));
+        });
     };
 
     openSearchLocation = () => {
-        this.props.navigation.navigate("SearchLocation",{});
+        this.props.navigation.navigate("SearchLocation", {});
     };
 
     render() {
+        let marker = this.getCars();
         return (
             <View style={[styles.container]}>
                 <MapView
+                    ref={ref => {
+                        this.map = ref;
+                    }}
                     showsUserLocation={true}
                     followsUserLocation={true}
                     provider={MapView.PROVIDER_GOOGLE}
-                    showsMyLocationButton={true}
                     style={styles.map}
+                    initialRegion={this.state.region}
+                    region={this.state.region}
                 >
+                    {marker}
                 </MapView>
                 <View style={styles.content}>
                     <Card style={styles.card}>
@@ -58,7 +117,8 @@ class UserHome extends Component {
                                     <Entypo name={"location-pin"} size={27.5} color={'red'}/>
                                 </View>
                                 <View style={styles.inputWrapper}>
-                                    <Text style={{fontSize: responsiveFontSize(2.5), color: "gray"}}>I'm Going To ...</Text>
+                                    <Text style={{fontSize: responsiveFontSize(2.5), color: "gray"}}>I'm Going To
+                                        ...</Text>
                                 </View>
                             </Ripple>
                         </View>
