@@ -7,6 +7,8 @@ import com.lastmileapp.Repository.DriverRepository;
 import com.lastmileapp.Repository.NodeRepository;
 import com.lastmileapp.Repository.StationRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -19,7 +21,7 @@ public class DataLoader {
     private NodeRepository nodeRepository;
     private DriverRepository driverRepository;
 
-    public DataLoader(StationRepository stationRepository, NodeRepository nodeRepository, DriverRepository driverRepository) {
+    public DataLoader(StationRepository stationRepository, NodeRepository nodeRepository, DriverRepository driverRepository) throws Exception  {
         this.stationRepository = stationRepository;
         this.nodeRepository=nodeRepository;
         this.driverRepository = driverRepository;
@@ -29,9 +31,9 @@ public class DataLoader {
 
     }
 
-    private void LoadStationData() {
+    private void LoadStationData() throws Exception {
 
-        File file = new File("src/main/resources/input/station.csv");
+        File file= ResourceUtils.getFile("classpath:static/station.csv");
         String csvFile = file.getAbsolutePath();
         String line = "";
         String cvsSplitBy = ",";
@@ -57,8 +59,9 @@ public class DataLoader {
         }
     }
 
-    private void LoadNodeData() {
-        File file = new File("src/main/resources/input/node.csv");
+    private void LoadNodeData() throws Exception {
+//      File file = new File("src/main/resources/input/node.csv");
+        File file= ResourceUtils.getFile("classpath:static/node.csv");
         String csvFile = file.getAbsolutePath();
         String line = "";
         String cvsSplitBy = ",";
@@ -84,8 +87,8 @@ public class DataLoader {
         }
     }
 
-    private void LoadDriverData() {
-        File file = new File("src/main/resources/input/driver.csv");
+    private void LoadDriverData() throws Exception {
+        File file= ResourceUtils.getFile("classpath:static/driver.csv");
         String csvFile = file.getAbsolutePath();
         String line = "";
         String cvsSplitBy = ",";
