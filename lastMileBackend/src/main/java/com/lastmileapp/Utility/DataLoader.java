@@ -100,7 +100,10 @@ public class DataLoader {
                 String plateNum = driver[0];
                 int stationId = Integer.parseInt(driver[1]);
                 int capacity = Integer.parseInt(driver[3]);
-                driverRepository.save(new Driver(plateNum,stationId,capacity));
+                Station s=stationRepository.getStationById(stationId);
+                double longitude=s.getLongitude();
+                double latitude= s.getLatitude();
+                driverRepository.save(new Driver(plateNum,stationId,capacity,longitude,latitude));
             }
 
         } catch (IOException e) {

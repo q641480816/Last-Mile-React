@@ -35,6 +35,12 @@ public class Driver {
     @Column(name="lastTimeReturn")
     private Date lastTimeReturn;
 
+    @Column(name = "LONGITUDE")
+    private double longitude;
+
+    @Column(name = "LATITUDE")
+    private double latitude;
+
     @ElementCollection
     private Map<Integer,ArrayList<Integer>> assignedPassengers;
 
@@ -43,7 +49,7 @@ public class Driver {
 
     }
 
-    public Driver(String plateNum, int stationID, int capacity){
+    public Driver(String plateNum, int stationID, int capacity, double longitude, double latitude ){
         this.plateNum = plateNum;
         this.stationID=stationID;
         this.status=status;
@@ -54,6 +60,8 @@ public class Driver {
         this.assignedPassengers= new LinkedHashMap<>();
         Date currentDate = new Date(System.currentTimeMillis());
         this.setLastTimeReturn(currentDate);
+        this.longitude=longitude;
+        this.latitude=latitude;
 
     }
 
@@ -125,6 +133,22 @@ public class Driver {
 
     public void setLastTimeReturn(Date lastTimeReturn) {
         this.lastTimeReturn = lastTimeReturn;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 }
 

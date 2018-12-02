@@ -45,6 +45,19 @@ public class DriverService {
 
     }
 
+    public boolean updateDriverLocation(double longitude, double latitude, String plateNum){
+        Driver d= driverRepository.findByPlateNum(plateNum);
+        if(d!=null) {
+            d.setLongitude(longitude);
+            d.setLatitude(latitude);
+            driverRepository.save(d);
+            return true;
+        }
+
+        return false;
+
+    }
+
 
     public String request(int stationId, int nodeId, int contact){
         Station s=stationRepository.getStationById(stationId);

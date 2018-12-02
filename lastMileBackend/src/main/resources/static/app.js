@@ -38,7 +38,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/lastMileApp/driver", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/lastMileApp/dispatch", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
 function showGreeting(message) {
