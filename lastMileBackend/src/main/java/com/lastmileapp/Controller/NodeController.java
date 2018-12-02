@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/lastMileApp/")
+@RequestMapping(value = "/nodes")
 public class NodeController {
 
     @Autowired
     NodeService nodeService;
 
-    @RequestMapping(value = "nodes", method=RequestMethod.GET)
+    @RequestMapping(value = "all", method=RequestMethod.GET)
     public List<Node> getNodeBystation(@RequestParam("stationId") int stationId) {
         return nodeService.getNodeByStation(stationId);
     }

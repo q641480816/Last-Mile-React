@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(value = "/lastMileApp/drivers")
+@RequestMapping(value = "/drivers")
 public class DriverController {
 
     @Autowired
