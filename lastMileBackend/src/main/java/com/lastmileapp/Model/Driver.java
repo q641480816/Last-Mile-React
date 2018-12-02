@@ -20,7 +20,6 @@ public class Driver {
     @Column(name = "STATION_ID")
     private int stationID;
 
-
     @Column(name="STATUS")
     private String status;
 
@@ -53,7 +52,8 @@ public class Driver {
         this.numOfAssign= 0;
         this.status="waiting";
         this.assignedPassengers= new LinkedHashMap<>();
-        this.setLastTimeReturn(null);
+        Date currentDate = new Date(System.currentTimeMillis());
+        this.setLastTimeReturn(currentDate);
 
     }
 

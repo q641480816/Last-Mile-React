@@ -18,9 +18,14 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/greetings', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).content);
+//        stompClient.subscribe('/topic/greetings', function (greeting) {
+//            showGreeting(JSON.parse(greeting.body).content);
+//        });
+        stompClient.subscribe('/topic/dispatch', function (list) {
+            console.log(list);
+            showDispatch(JSON.parse(list.body));
         });
+
     });
 }
 
@@ -33,11 +38,16 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/lastMileApp/hello", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/lastMileApp/driver", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
 function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
+}
+
+function showDispatch(msg){
+    $("#dispatchDrivers").append( msg);
+
 }
 
 $(function () {

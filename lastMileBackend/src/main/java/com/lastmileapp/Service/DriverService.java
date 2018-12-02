@@ -6,8 +6,6 @@ import com.lastmileapp.Repository.DriverRepository;
 import com.lastmileapp.Repository.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -35,8 +33,20 @@ public class DriverService {
         return waitingDrivers;
     }
 
+    public List<Driver> getAllWaitingDrivers(){
+        ArrayList<Driver> waitingDrivers = new ArrayList<>();
+        List<Driver> drivers = driverRepository.findAll();
+        for (Driver d : drivers) {
+            if (d.getStatus().equals("waiting")) {
+                waitingDrivers.add(d);
+            }
+        }
+        return waitingDrivers;
 
-    public boolean request(int stationId, int nodeId, int contact){
+    }
+
+
+    public String request(int stationId, int nodeId, int contact){
         Station s=stationRepository.getStationById(stationId);
         if (s!=null) {
             Map<Integer, LinkedList<Integer>>  queues = s.getQueues();
@@ -50,14 +60,15 @@ public class DriverService {
 
             s.setQueues(queues);
             stationRepository.save(s);
-            return assignDriver(stationId);
+            Driver d=assignDriver(stationId);
+            return d.getPlateNum();
 
         }
 
-        return false;
+        return null;
     }
 
-    public boolean assignDriver(int stationId){
+    public Driver assignDriver(int stationId){
         Station s = stationRepository.getStationById(stationId);
         Map<Integer, LinkedList<Integer>> stationQueues= s.getQueues();
         List<Driver> drivers = driverService.getWaitingDriverByStation(stationId);
@@ -92,6 +103,7 @@ public class DriverService {
                 }
             }
         }
+
         /*if(numOfPass>=d.getCapacity()){  // start to schedule driver when reaches capacity
             for (Map.Entry<Integer, LinkedList<Integer>> entry : stationQueues.entrySet()) {
                 int nodeId = entry.getKey();
@@ -118,7 +130,7 @@ public class DriverService {
         driverService.saveDriver(d);
         s.setQueues(stationQueues);
         stationService.saveStation(s);
-        return true;
+        return d;
     }
 
     private int countWaitingPass(int stationId){
@@ -128,18 +140,6 @@ public class DriverService {
                 .sum();
     }
 
-//    public boolean book(String plateNum){
-//        Driver d= driverRepository.findByPlateNum(plateNum);
-//        if (d!=null && d.getStatus().equals("waiting")) {
-//            int numOfBook =d.getNumOfBooking()+1;
-//            d.setNumOfBooking(numOfBook);
-//            driverRepository.save(d);
-//            return true;
-//        }
-//
-//        return false;
-//    }
-
 
     public boolean onboard(String plateNum){
         Driver d= driverRepository.findByPlateNum(plateNum);
@@ -147,11 +147,24 @@ public class DriverService {
             int numOfOnboard = d.getNumOfOnboard()+1;
             d.setNumOfOnboard(numOfOnboard);
             driverRepository.save(d);
+
             return true;
         }
 
         return false;
 
+
+    }
+
+    public boolean readToDispatch(String plateNum){
+        Driver d= driverRepository.findByPlateNum(plateNum);
+        if(d!=null) {
+            if (d.getNumOfOnboard()>=d.getCapacity()){
+                return true;
+
+            }
+        }
+        return false;
 
     }
 
@@ -173,7 +186,7 @@ public class DriverService {
         if(d!=null) {
             d.setStatus("waiting");
             d.setNumOfOnboard(0);
-           // d.setNumOfBooking(0);
+            d.setNumOfAssign(0);
             Date date = new Date(System.currentTimeMillis());
             d.setLastTimeReturn(date);
             driverRepository.save(d);

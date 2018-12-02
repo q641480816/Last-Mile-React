@@ -2,11 +2,10 @@ package com.lastmileapp.Controller;
 
 import com.lastmileapp.Model.Driver;
 import com.lastmileapp.Service.DriverService;
-import com.lastmileapp.Service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +18,6 @@ public class DriverController {
     @Autowired
     DriverService driverService;
 
-
     @RequestMapping(value = "waiting", method=RequestMethod.GET)
     public List<Driver> getWaitingDriverBystation(@RequestParam("stationId") int stationId) {
 
@@ -28,18 +26,9 @@ public class DriverController {
     }
 
     @RequestMapping(value="request", method=RequestMethod.POST)
-    public HashMap<String, Boolean> request(@RequestParam("stationId") int stationId, @RequestParam("nodeId") int nodeId, @RequestParam("contact") int contact) {
-        HashMap<String, Boolean> result = new HashMap<>();
-        result.put("status", driverService.request(stationId,nodeId,contact));
-        return result;
-    }
-
-
-
-    @RequestMapping(value = "book", method=RequestMethod.POST)
-    public HashMap<String, Boolean> book(@RequestParam("plateNum") String plateNum) {
-        HashMap<String, Boolean> result = new HashMap<>();
-    //    result.put("status", driverService.book(plateNum));
+    public HashMap<String,String> request(@RequestParam("stationId") int stationId, @RequestParam("nodeId") int nodeId, @RequestParam("contact") int contact) {
+        HashMap<String, String> result = new HashMap<>();
+        result.put("plateNum",driverService.request(stationId,nodeId,contact));
         return result;
     }
 
@@ -47,6 +36,13 @@ public class DriverController {
     public HashMap<String, Boolean> onboard(@RequestParam("plateNum") String plateNum) {
         HashMap<String, Boolean> result = new HashMap<>();
         result.put("status", driverService.onboard(plateNum));
+        if(driverService.readToDispatch(plateNum)){
+            List<String> dispatchList= DispatchController.dispatchList;
+            synchronized(dispatchList) {
+                dispatchList.add(plateNum);
+            }
+
+        }
         return result;
     }
 
@@ -55,6 +51,11 @@ public class DriverController {
     public HashMap<String, Boolean> dispatch(@RequestParam("plateNum") String plateNum) {
         HashMap<String, Boolean> result = new HashMap<>();
         result.put("status", driverService.disPatch(plateNum));
+        List<String> dispatchList= DispatchController.dispatchList;
+        synchronized(dispatchList) {
+            dispatchList.removeAll(Arrays.asList(plateNum));
+        }
+
         return result;
 
     }

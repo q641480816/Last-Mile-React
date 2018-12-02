@@ -1,10 +1,11 @@
 package com.lastmileapp.Utility;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import com.lastmileapp.Controller.DispatchController;
 import com.lastmileapp.Model.Driver;
-import com.lastmileapp.Model.Station;
 import com.lastmileapp.Service.DriverService;
-import com.lastmileapp.Service.StationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +22,25 @@ public class ScheduledTasks {
     @Autowired
     DriverService driverService;
 
-    @Autowired
-    StationService stationService;
-
-
-    @Scheduled(fixedRate = 6000000)
+    @Scheduled(fixedRate = 60000)
     public void ScheduleDrivers() {
+        Date currentDate = new Date(System.currentTimeMillis());
+        List<Driver> drivers = driverService.getAllWaitingDrivers();
+        for (Driver d: drivers){
+            if(d.getNumOfOnboard()>0){
+                long diffInMillies = Math.abs(currentDate.getTime() - d.getLastTimeReturn().getTime());
+                long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
+                if(diff>3){
+                    List<String> dispatchList= DispatchController.dispatchList;
+                    synchronized(dispatchList) {
+                        dispatchList.add(d.getPlateNum());
+                    }
 
+                }
 
+            }
 
-
+        }
 
     }
 }
