@@ -14,13 +14,15 @@ import java.util.List;
 public class StationService {
     @Autowired
     StationRepository stationRepository;
-    @Autowired
-    StationRepository nodeRepository;
 
 
 
     public List<Station> getAll() {
         return stationRepository.findAll();
+    }
+
+    public void saveStation(Station s){
+        stationRepository.save(s);
     }
 
 

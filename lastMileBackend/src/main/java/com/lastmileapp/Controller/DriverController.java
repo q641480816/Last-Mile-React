@@ -21,17 +21,25 @@ public class DriverController {
 
 
     @RequestMapping(value = "waiting", method=RequestMethod.GET)
-    public List<Driver> getDriverBystation(@RequestParam("stationId") int stationId) {
+    public List<Driver> getWaitingDriverBystation(@RequestParam("stationId") int stationId) {
 
-        return driverService.getWaitingDriverByStationNode(stationId);
+        return driverService.getWaitingDriverByStation(stationId);
 
     }
+
+    @RequestMapping(value="request", method=RequestMethod.POST)
+    public HashMap<String, Boolean> request(@RequestParam("stationId") int stationId, @RequestParam("nodeId") int nodeId, @RequestParam("contact") int contact) {
+        HashMap<String, Boolean> result = new HashMap<>();
+        result.put("status", driverService.request(stationId,nodeId,contact));
+        return result;
+    }
+
 
 
     @RequestMapping(value = "book", method=RequestMethod.POST)
     public HashMap<String, Boolean> book(@RequestParam("plateNum") String plateNum) {
         HashMap<String, Boolean> result = new HashMap<>();
-        result.put("status", driverService.bookDriver(plateNum));
+    //    result.put("status", driverService.book(plateNum));
         return result;
     }
 
