@@ -1,7 +1,12 @@
 package com.lastmileapp.Model;
 
+
+
 import javax.persistence.*;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 
 @Entity
@@ -17,18 +22,23 @@ public class Station {
     private double longitude;
     @Column(name = "LATITUDE")
     private double latitude;
+    @ElementCollection
+    private Map<Integer, LinkedList<Integer>> queues;
 
 
-    public Station(int id, String name, int fleetSize, double longtitude, double latitude){
+    public Station(int id, String name, int fleetSize, double longitude, double latitude){
         this.id=id;
         this.name=name;
         this.fleetSize=fleetSize;
-        this.longitude=longtitude;
+        this.longitude=longitude;
         this.latitude=latitude;
+        this.setQueues(new LinkedHashMap<>());
+
     }
 
     public Station(){
     }
+
 
 
     public int getId() {
@@ -55,15 +65,6 @@ public class Station {
         this.fleetSize = fleetSize;
     }
 
-
-
-
-    @Override
-    public String toString() {
-        return "Station [id=" + id + ", name=" + name + ", fleet size=" + fleetSize + "]";
-    }
-
-
     public double getLongitude() {
         return longitude;
     }
@@ -79,4 +80,20 @@ public class Station {
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
+
+    @Override
+    public String toString() {
+        return "Station [id=" + id + ", name=" + name + ", fleet size=" + fleetSize + "]";
+    }
+
+
+
+    public Map<Integer, LinkedList<Integer>> getQueues() {
+        return queues;
+    }
+
+    public void setQueues(Map<Integer, LinkedList<Integer>> queues) {
+        this.queues = queues;
+    }
+
 }
