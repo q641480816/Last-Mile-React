@@ -1,5 +1,6 @@
 package com.lastmileapp.Service;
 
+import com.lastmileapp.Controller.SocketController;
 import com.lastmileapp.Model.Driver;
 import com.lastmileapp.Model.Station;
 import com.lastmileapp.Repository.DriverRepository;
@@ -22,6 +23,11 @@ public class DriverService {
 
     @Autowired
     StationService stationService;
+
+    public static Map<Integer, String> passengerStatus = new HashMap<>();
+    Map<Integer,String> assignedDrivers = SocketController.assignedDriver;
+
+
     public List<Driver> getWaitingDriverByStation(int stationId) {
         ArrayList<Driver> waitingDrivers = new ArrayList<>();
         List<Driver> drivers = driverRepository.findByStationID(stationId);
@@ -45,6 +51,10 @@ public class DriverService {
 
     }
 
+    public Map getPassengers(){
+        return passengerStatus;
+    }
+
     public boolean updateDriverLocation(double longitude, double latitude, String plateNum){
         Driver d= driverRepository.findByPlateNum(plateNum);
         if(d!=null) {
@@ -59,7 +69,7 @@ public class DriverService {
     }
 
 
-    public String request(int stationId, int nodeId, int contact){
+    public boolean request(int stationId, int nodeId, int contact){
         Station s=stationRepository.getStationById(stationId);
         if (s!=null) {
             Map<Integer, LinkedList<Integer>>  queues = s.getQueues();
@@ -73,20 +83,20 @@ public class DriverService {
 
             s.setQueues(queues);
             stationRepository.save(s);
-            Driver d=assignDriver(stationId);
-            return d.getPlateNum();
+            passengerStatus.put(contact,"requested");
+            assignDriver(stationId, contact);
+            return true;
 
         }
 
-        return null;
+        return false;
     }
 
-    public Driver assignDriver(int stationId){
+    public void assignDriver(int stationId, int contact){
         Station s = stationRepository.getStationById(stationId);
         Map<Integer, LinkedList<Integer>> stationQueues= s.getQueues();
         List<Driver> drivers = driverService.getWaitingDriverByStation(stationId);
         Driver d = drivers.get(0);
-        Map<Integer, ArrayList<Integer>> assignedQueue = d.getAssignedPassengers();
         int numOfPass = countWaitingPass(stationId);
         int count = 0;
         if (d.getCapacity() <= numOfPass) {
@@ -108,6 +118,12 @@ public class DriverService {
                 d.setAssignedPassengers(nodes);
                 count++;
                 d.setNumOfAssign(count);
+                if(passengerStatus.get(contact).equals("requested")) {
+                    passengerStatus.put(pContact, "assigned");
+                }
+                synchronized(assignedDrivers) {
+                    assignedDrivers.put(pContact,d.getPlateNum());
+                }
                 if (count == d.getCapacity()) {
                     stationQueues.remove(nodeId);
                     if(nodePass.size()>0) {
@@ -143,7 +159,7 @@ public class DriverService {
         driverService.saveDriver(d);
         s.setQueues(stationQueues);
         stationService.saveStation(s);
-        return d;
+
     }
 
     private int countWaitingPass(int stationId){
@@ -154,12 +170,15 @@ public class DriverService {
     }
 
 
-    public boolean onboard(String plateNum){
+    public boolean onboard(String plateNum, int contact){
         Driver d= driverRepository.findByPlateNum(plateNum);
         if(d!=null) {
             int numOfOnboard = d.getNumOfOnboard()+1;
             d.setNumOfOnboard(numOfOnboard);
             driverRepository.save(d);
+            if(passengerStatus.get(contact).equals("assigned")){
+                passengerStatus.put(contact,"onboard");
+            }
 
             return true;
         }
@@ -203,6 +222,10 @@ public class DriverService {
             Date date = new Date(System.currentTimeMillis());
             d.setLastTimeReturn(date);
             driverRepository.save(d);
+            synchronized(assignedDrivers) {
+                assignedDrivers.values().removeIf(val -> plateNum.equals(val));
+            }
+
             return true;
         }
 

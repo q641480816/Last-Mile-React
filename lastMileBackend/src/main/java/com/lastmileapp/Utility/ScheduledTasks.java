@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import com.lastmileapp.Controller.DispatchController;
+import com.lastmileapp.Controller.SocketController;
 import com.lastmileapp.Model.Driver;
 import com.lastmileapp.Service.DriverService;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class ScheduledTasks {
                 long diffInMillies = Math.abs(currentDate.getTime() - d.getLastTimeReturn().getTime());
                 long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
                 if(diff>3){
-                    List<String> dispatchList= DispatchController.dispatchList;
+                    List<String> dispatchList= SocketController.dispatchList;
                     synchronized(dispatchList) {
                         dispatchList.add(d.getPlateNum());
                     }
