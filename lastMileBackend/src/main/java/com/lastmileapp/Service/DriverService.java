@@ -51,8 +51,12 @@ public class DriverService {
 
     }
 
-    public Map getPassengers(){
-        return passengerStatus;
+    public String getPassengers(int contact){
+        if(passengerStatus.containsKey(contact)){
+            return passengerStatus.get(contact);
+        }else{
+            return "unrequested";
+        }
     }
 
     public boolean updateDriverLocation(double longitude, double latitude, String plateNum){

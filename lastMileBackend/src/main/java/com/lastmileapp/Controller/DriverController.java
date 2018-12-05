@@ -28,8 +28,10 @@ public class DriverController {
     }
 
     @RequestMapping(value = "passenger", method=RequestMethod.GET)
-    public Map getPassenger() {
-        return driverService.getPassengers();
+    public HashMap<String,String> getPassenger(@RequestParam("contact") int contact) {
+        HashMap<String, String> result = new HashMap<>();
+        result.put("status",driverService.getPassengers(contact));
+        return result;
     }
 
     @RequestMapping(value="update", method=RequestMethod.POST)
