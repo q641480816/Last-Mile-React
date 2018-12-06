@@ -48,8 +48,8 @@ public class DataLoader {
                 int id = Integer.parseInt(station[0]);
                 String name = station[1];
                 int fleetSize = Integer.parseInt(station[2]);
-                double longtitude = Double.parseDouble(station[3]);
-                double latitude = Double.parseDouble(station[4]);
+                double latitude = Double.parseDouble(station[3]);
+                double longtitude = Double.parseDouble(station[4]);
                 stationRepository.save(new Station(id, name, fleetSize,longtitude,latitude));
 
             }
@@ -75,8 +75,8 @@ public class DataLoader {
 
                 int id = Integer.parseInt(node[0]);
                 String name = node[1];
-                double longtitude = Double.parseDouble(node[2]);
-                double latitude = Double.parseDouble(node[3]);
+                double latitude = Double.parseDouble(node[2]);
+                double longtitude = Double.parseDouble(node[3]);
                 int stationId= Integer.parseInt(node[4]);
                 nodeRepository.save(new Node(id, name, longtitude, latitude, stationId));
 
@@ -102,7 +102,7 @@ public class DataLoader {
 
                 String plateNum = driver[0];
                 int stationId = Integer.parseInt(driver[1]);
-                int capacity = Integer.parseInt(driver[3]);
+                int capacity = Integer.parseInt(driver[2]);
                 Station s=stationRepository.getStationById(stationId);
                 double longitude=s.getLongitude();
                 double latitude= s.getLatitude();

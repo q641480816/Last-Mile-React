@@ -10,4 +10,7 @@ public interface NodeRepository extends JpaRepository<Node, Integer> {
     List<Node>getNodeByStationID(int stationID);
 
 
+    Node getNodeById(int id);
+
+
 }
