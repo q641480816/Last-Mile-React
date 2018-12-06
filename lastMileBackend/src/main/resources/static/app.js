@@ -21,10 +21,11 @@ function connect() {
 //        stompClient.subscribe('/topic/greetings', function (greeting) {
 //            showGreeting(JSON.parse(greeting.body).content);
 //        });
-        stompClient.subscribe('/topic/dispatch', function (list) {
+        stompClient.subscribe('/topic/passenger', function (list) {
             console.log(list);
-            showDispatch(JSON.parse(list.body));
+            assignedDriver(JSON.parse(list.body));
         });
+
 
     });
 }
@@ -38,7 +39,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/lastMileApp/dispatch", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/last-mile-app/passenger", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
 function showGreeting(message) {
@@ -47,6 +48,11 @@ function showGreeting(message) {
 
 function showDispatch(msg){
     $("#dispatchDrivers").append( msg);
+
+}
+
+function assignedDriver(msg){
+    $("#assignedDrivers").append( msg);
 
 }
 
