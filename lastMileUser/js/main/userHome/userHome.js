@@ -3,11 +3,19 @@ import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import {
     StyleSheet,
     View,
+    AsyncStorage,
+    TextInput,
+    Text,
+    Image
 } from 'react-native';
+import SockJs from 'sockjs-client';
+import {Stomp} from 'stompjs/lib/stomp';
 
 import Util from '../../common/util';
 import carIcon from '../../common/1.png';
 import SearchContent from "./searchContent";
+import {responsiveFontSize} from "../../common/responsive";
+import {Button, Dialog, DialogDefaultActions, Toolbar} from "react-native-material-ui";
 
 class UserHome extends Component {
 
@@ -27,17 +35,25 @@ class UserHome extends Component {
             },
             cars: [],
             stations: [],
-            state: 1
+            coords: [],
+            contact: null,
+            isEditingContact: true
         };
 
         this.getCurrentLocation = this.getCurrentLocation.bind(this);
-        this.getCars = this.getCars.bind(this);
         this.getStations = this.getStations.bind(this);
         this.renderBox = this.renderBox.bind(this);
+        this.buildCarSocket = this.buildCarSocket.bind(this);
+        this.initCars = this.initCars.bind(this);
+        this.updateCars = this.updateCars.bind(this);
+        this.updateRoutes = this.updateRoutes.bind(this);
+        this.renderRoutes = this.renderRoutes.bind(this);
+        this.renderNumber = this.renderNumber.bind(this);
     };
 
     componentWillMount() {
         this.getStations();
+        this.buildCarSocket();
     }
 
     componentDidMount() {
@@ -52,6 +68,8 @@ class UserHome extends Component {
                     region: {
                         latitude: location.coords.latitude,
                         longitude: location.coords.longitude,
+                        // latitude: 1.299044,
+                        // longitude: 103.845699,
                         latitudeDelta: 0.10,
                         longitudeDelta: 0.10,
                     }
@@ -60,6 +78,37 @@ class UserHome extends Component {
             .catch((e) => {
                 console.log(e);
             });
+    };
+
+    componentWillUnmount() {
+        this.stompClient.disconnect((e) => {
+            console.log("disconnect....")
+        });
+        this.socket.close();
+    }
+
+    buildCarSocket = () => {
+        this.socket = new SockJs(`http://35.247.175.250:8080/last-mile-app/gs-guide-websocket`);
+        this.stompClient = Stomp.over(this.socket);
+        this.stompClient.connect({}, (frame) => {
+            this.stompClient.subscribe('/topic/location', (list) => {
+                if (this.state.cars.length === 0) {
+                    this.initCars(JSON.parse(list.body))
+                } else {
+                    this.updateCars(JSON.parse(list.body));
+                }
+            });
+            this.stompClient.subscribe('/topic/passenger', (list) => {
+                if (!this.state.isEditingContact) {
+                    let result = JSON.parse(list.body);
+                    if (result[this.state.contact] != null) {
+                        this.control.assign(result[this.state.contact]);
+                    }
+                }
+            });
+        }, (error) => {
+            alert(error);
+        });
     };
 
     getStations = () => {
@@ -74,22 +123,31 @@ class UserHome extends Component {
             })
     };
 
-    getCars = () => {
-        let position = {latitude: this.state.region.latitude, longitude: this.state.region.longitude};
-        let random = Math.floor((Math.random() * 10) + 1);
+    initCars = (carsRaw) => {
         let cars = [];
-        for (let i = 0; i < random; i++) {
-            let lat = Math.random() * 3 / 100;
-            let long = Math.random() * 3 / 100;
-            cars.push({
-                latitude: Math.random() <= 0.5 ? position.latitude + lat : position.latitude - lat,
-                longitude: Math.random() <= 0.5 ? position.longitude + long : position.longitude - long,
-                id: i
-            })
-        }
-
-        return cars.map((c) => <Marker coordinate={c} key={c.id} image={carIcon}/>)
+        carsRaw.forEach((c) => {
+            cars.push(
+                <Marker ref={ref => {
+                    this["car" + c.plateNum] = ref;
+                }} coordinate={{latitude: c.latitude, longitude: c.longitude}} key={c.plateNum}
+                >
+                    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                        <Image source={carIcon} style={{width: 42, height: 30.8}}/>
+                    </View>
+                </Marker>
+            )
+        });
+        this.setState({
+            cars: cars
+        });
     };
+
+    updateCars = (cars) => {
+        cars.forEach((c) => {
+            this["car" + c.plateNum].animateMarkerToCoordinate({latitude: c.latitude, longitude: c.longitude}, 200)
+        })
+    };
+
 
     getCurrentLocation = () => {
         return new Promise((resolve, reject) => {
@@ -98,14 +156,65 @@ class UserHome extends Component {
     };
 
     renderBox = () => {
-        if (this.state.state === 1) {
-            return <SearchContent navigation={this.props.navigation} userLocation={this.state.userLocation}
-                                  stations={this.state.stations}/>
+        if (!this.state.isEditingContact) {
+            return <SearchContent ref={ref => {
+                this.control = ref;
+            }} navigation={this.props.navigation} userLocation={this.state.userLocation}
+                                  stations={this.state.stations} updateRoute={this.updateRoutes}
+                                  contact={this.state.contact}/>
         }
     };
 
+    renderNumber = () => {
+        if (this.state.isEditingContact) {
+            return (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <Dialog>
+                    <Dialog.Title><Text>Enter Contact Number</Text></Dialog.Title>
+                    <Dialog.Content>
+                        <TextInput style={{
+                            fontSize: responsiveFontSize(2),
+                            color: "black"
+                        }}
+                                   placeholder={"Contact Number"}
+                                   value={this.state.contact}
+                                   onChangeText={(text) => this.setState({contact: text})}
+                        />
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <DialogDefaultActions
+                            actions={['Confirm']}
+                            onActionPress={() => {
+                                this.setState({
+                                    isEditingContact: false
+                                })
+                            }}
+                        />
+                    </Dialog.Actions>
+                </Dialog>
+            </View>)
+        }
+    };
+
+    renderRoutes = () => {
+        if (this.state.coords.length === 0) {
+            return <View/>
+        } else {
+            return (
+                <MapView.Polyline
+                    coordinates={this.state.coords}
+                    strokeWidth={5}
+                    strokeColor="red"/>
+            )
+        }
+    };
+
+    updateRoutes = (coords) => {
+        this.setState({
+            coords: coords
+        })
+    };
+
     render() {
-        let marker = this.getCars();
         return (
             <View style={[styles.container]}>
                 <MapView
@@ -120,10 +229,12 @@ class UserHome extends Component {
                     region={this.state.region}
                 >
                     <View>
-                        {marker}
+                        {this.state.cars}
+                        {this.renderRoutes()}
                     </View>
                 </MapView>
                 {this.renderBox()}
+                {this.renderNumber()}
             </View>
         )
     }

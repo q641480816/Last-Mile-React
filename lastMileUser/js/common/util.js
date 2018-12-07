@@ -1,11 +1,14 @@
 import {
     Dimensions,
 } from 'react-native';
+import Polyline from "@mapbox/polyline";
 
 const ReactN = require('react-native');
 const {Platform} = ReactN;
 
 const Util = {
+    googleDreactionApiKey: 'AIzaSyCyd1SXDqT5R1u1KT8t9PYc7xl7kHl-3t0',
+    contact: 98674817,
     colors: {
         primaryColor: '#222B2F',
         secondaryColor: '#4A5357',
@@ -33,6 +36,18 @@ const Util = {
         })
 
     },
+    post: (url) => {
+        return new Promise((resolve, reject) => {
+            fetch('http://35.247.175.250:8080/last-mile-app/' + url,{method: 'POST'})
+                .then((res) => {
+                    resolve(JSON.parse(res._bodyText));
+                })
+                .catch((err) => {
+                    console.log(err);
+                    reject(err);
+                })
+        })
+    },
     getDistance: (station, userLocation) => {
         let getRadian = (degree) => {
             return degree * Math.PI / 180.0;
@@ -56,6 +71,21 @@ const Util = {
             }
         });
         return station;
+    },
+    getRoute: (start, end) => {
+        return new Promise((resolve, reject) => {
+            fetch('https://maps.googleapis.com/maps/api/directions/json?origin=' + start.latitude + "," + start.longitude + '&destination=' + end.latitude + "," + end.longitude + "&key=" + Util.googleDreactionApiKey)
+                .then((res) => {
+                    let result = JSON.parse(res._bodyText);
+                    let points = Polyline.decode(result.routes[0].overview_polyline.points);
+                    let pointsRefine = [];
+                    points.forEach((c) => {
+                        pointsRefine.push({latitude: c[0], longitude: c[1]});
+                    });
+                    resolve(pointsRefine);
+                })
+                .catch(e => reject(e));
+        })
     }
 };
 

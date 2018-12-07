@@ -11,7 +11,6 @@ import Ripple from "react-native-material-ripple";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import Spinner from 'react-native-spinkit';
 
 import Util from '../../common/util';
 import {responsiveFontSize} from '../../common/responsive';
@@ -169,7 +168,7 @@ export default class SearchLocation extends Component {
         }else {
             return(
                 <View style={{flex: 1, width: Util.size.width, alignItems: 'center', justifyContent: 'center'}}>
-                    <Spinner isVisible={true} size={50} type={'Bounce'} color={'orange'}/>
+                    <Text style={{fontSize: responsiveFontSize(2.7)}}>Loading ...</Text>
                 </View>
             )
         }
