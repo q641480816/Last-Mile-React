@@ -6,6 +6,7 @@ import com.lastmileapp.Model.Station;
 import com.lastmileapp.Repository.DriverRepository;
 import com.lastmileapp.Repository.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -24,8 +25,16 @@ public class DriverService {
     @Autowired
     StationService stationService;
 
+    @Value("${driverAutomation}")
+    Boolean driverAutomation;
+
+
+
+
     public static Map<Integer, String> passengerStatus = new HashMap<>();
     Map<Integer,String> assignedDrivers = SocketController.assignedDriver;
+    Map<Integer,ArrayList<Integer>> passengerDest = new HashMap<>();
+
 
 
     public List<Driver> getWaitingDriverByStation(int stationId) {
@@ -51,12 +60,49 @@ public class DriverService {
 
     }
 
-    public String getPassengers(int contact){
-        if(passengerStatus.containsKey(contact)){
-            return passengerStatus.get(contact);
-        }else{
-            return "unrequested";
+    public String getAssignedDriver(int contact){
+        synchronized(assignedDrivers) {
+            if (assignedDrivers.containsKey(contact)) {
+                return assignedDrivers.get(contact);
+            } else {
+                return "unassigned";
+            }
         }
+    }
+
+    public String getPassengers(int contact){
+        synchronized(passengerStatus) {
+            if (passengerStatus.containsKey(contact)) {
+                return passengerStatus.get(contact);
+            } else {
+                return "unrequested";
+            }
+        }
+    }
+
+
+    public Driver getDriverByPlateNum(String plateNum){
+        return driverRepository.findByPlateNum(plateNum);
+    }
+
+
+    public int getDestStation(int contact){
+        if(passengerDest.containsKey(contact)){
+            return (passengerDest.get(contact).get(0));
+        }else{
+            return 0;
+
+        }
+    }
+
+    public int getDestNode(int contact){
+        if(passengerDest.containsKey(contact)){
+            return (passengerDest.get(contact).get(1));
+        }else{
+            return 0;
+
+        }
+
     }
 
     public boolean updateDriverLocation(double longitude, double latitude, String plateNum){
@@ -87,7 +133,11 @@ public class DriverService {
 
             s.setQueues(queues);
             stationRepository.save(s);
-            passengerStatus.put(contact,"requested");
+            synchronized (passengerStatus) {
+                passengerStatus.put(contact, "requested");
+            }
+            ArrayList<Integer> dest= new ArrayList<>(Arrays.asList(stationId,nodeId));
+            passengerDest.put(contact,dest);
             assignDriver(stationId, contact);
             return true;
 
@@ -122,8 +172,10 @@ public class DriverService {
                 d.setAssignedPassengers(nodes);
                 count++;
                 d.setNumOfAssign(count);
-                if(passengerStatus.get(contact).equals("requested")) {
-                    passengerStatus.put(pContact, "assigned");
+                synchronized (passengerStatus) {
+                    if (passengerStatus.get(pContact).equals("requested")) {
+                        passengerStatus.put(pContact, "assigned");
+                    }
                 }
                 synchronized(assignedDrivers) {
                     assignedDrivers.put(pContact,d.getPlateNum());
@@ -180,8 +232,10 @@ public class DriverService {
             int numOfOnboard = d.getNumOfOnboard()+1;
             d.setNumOfOnboard(numOfOnboard);
             driverRepository.save(d);
-            if(passengerStatus.get(contact).equals("assigned")){
-                passengerStatus.put(contact,"onboard");
+            synchronized (passengerStatus) {
+                if (passengerStatus.get(contact).equals("assigned")) {
+                    passengerStatus.put(contact, "onboard");
+                }
             }
 
             return true;
@@ -208,6 +262,9 @@ public class DriverService {
         Driver d= driverRepository.findByPlateNum(plateNum);
         if(d!=null) {
             d.setStatus("driving");
+            synchronized (passengerStatus) {
+                passengerStatus.replaceAll((k, v) -> "driving");
+            }
             driverRepository.save(d);
             return true;
         }
@@ -225,7 +282,14 @@ public class DriverService {
             d.setNumOfAssign(0);
             Date date = new Date(System.currentTimeMillis());
             d.setLastTimeReturn(date);
+            Map<Integer,ArrayList<Integer>> assignedPassengers=new LinkedHashMap<>();
+            d.setAssignedPassengers(assignedPassengers);
             driverRepository.save(d);
+            synchronized(passengerStatus) {
+                passengerStatus.replaceAll((k, v) -> "unrequested");
+            }
+            ArrayList<Integer> dest= new ArrayList<>(Arrays.asList(0,0));
+            passengerDest.replaceAll((k,v) -> dest);
             synchronized(assignedDrivers) {
                 assignedDrivers.values().removeIf(val -> plateNum.equals(val));
             }

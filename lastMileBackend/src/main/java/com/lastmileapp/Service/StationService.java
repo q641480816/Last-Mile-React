@@ -21,6 +21,10 @@ public class StationService {
         return stationRepository.findAll();
     }
 
+    public Station getStationById(int id){
+        return stationRepository.getStationById(id);
+    }
+
     public void saveStation(Station s){
         stationRepository.save(s);
     }

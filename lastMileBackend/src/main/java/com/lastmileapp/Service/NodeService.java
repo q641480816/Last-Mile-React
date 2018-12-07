@@ -17,7 +17,9 @@ public class NodeService {
         return nodeRepository.getNodeByStationID(stationId);
     }
 
-
+    public Node getNodeById(int id){
+        return nodeRepository.getNodeById(id);
+    }
 
 
 

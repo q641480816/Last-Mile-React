@@ -2,13 +2,15 @@ package com.lastmileapp.Controller;
 
 import com.lastmileapp.Model.Driver;
 import com.lastmileapp.Service.DriverService;
+import com.lastmileapp.Service.NodeService;
+import com.lastmileapp.Service.StationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 
 @RestController
@@ -17,6 +19,12 @@ public class DriverController {
 
     @Autowired
     DriverService driverService;
+
+    @Autowired
+    StationService stationService;
+
+    @Autowired
+    NodeService nodeService;
 
 
 
@@ -28,9 +36,12 @@ public class DriverController {
     }
 
     @RequestMapping(value = "passenger", method=RequestMethod.GET)
-    public HashMap<String,String> getPassenger(@RequestParam("contact") int contact) {
-        HashMap<String, String> result = new HashMap<>();
+    public HashMap<String,Object> getPassenger(@RequestParam("contact") int contact) {
+        HashMap<String, Object> result = new HashMap<>();
         result.put("status",driverService.getPassengers(contact));
+        result.put("driver",driverService.getDriverByPlateNum(driverService.getAssignedDriver(contact)));
+        result.put("station",stationService.getStationById(driverService.getDestStation(contact)));
+        result.put("node",nodeService.getNodeById(driverService.getDestNode(contact)));
         return result;
     }
 

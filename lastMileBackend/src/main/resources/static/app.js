@@ -21,7 +21,7 @@ function connect() {
 //        stompClient.subscribe('/topic/greetings', function (greeting) {
 //            showGreeting(JSON.parse(greeting.body).content);
 //        });
-        stompClient.subscribe('/topic/passenger', function (list) {
+        stompClient.subscribe('/topic/location', function (list) {
             console.log(list);
             assignedDriver(JSON.parse(list.body));
         });
@@ -39,7 +39,7 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/last-mile-app/passenger", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/last-mile-app/location", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
 function showGreeting(message) {
