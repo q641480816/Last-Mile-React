@@ -5,7 +5,8 @@ import {
     View,
     AsyncStorage,
     TextInput,
-    Text
+    Text,
+    Image
 } from 'react-native';
 import SockJs from 'sockjs-client';
 import {Stomp} from 'stompjs/lib/stomp';
@@ -65,10 +66,10 @@ class UserHome extends Component {
                         longitude: location.coords.longitude,
                     },
                     region: {
-                        // latitude: location.coords.latitude,
-                        // longitude: location.coords.longitude,
-                        latitude: 1.299044,
-                        longitude: 103.845699,
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                        // latitude: 1.299044,
+                        // longitude: 103.845699,
                         latitudeDelta: 0.10,
                         longitudeDelta: 0.10,
                     }
@@ -98,7 +99,7 @@ class UserHome extends Component {
                 }
             });
             this.stompClient.subscribe('/topic/passenger', (list) => {
-                if (!this.state.isEditingContact){
+                if (!this.state.isEditingContact) {
                     let result = JSON.parse(list.body);
                     if (result[this.state.contact] != null) {
                         this.control.assign(result[this.state.contact]);
@@ -125,10 +126,16 @@ class UserHome extends Component {
     initCars = (carsRaw) => {
         let cars = [];
         carsRaw.forEach((c) => {
-            cars.push(<Marker ref={ref => {
-                this["car" + c.plateNum] = ref;
-            }} coordinate={{latitude: c.latitude, longitude: c.longitude}} key={c.plateNum}
-                              image={carIcon}/>)
+            cars.push(
+                <Marker ref={ref => {
+                    this["car" + c.plateNum] = ref;
+                }} coordinate={{latitude: c.latitude, longitude: c.longitude}} key={c.plateNum}
+                >
+                    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                        <Image source={carIcon} style={{width: 42, height: 30.8}}/>
+                    </View>
+                </Marker>
+            )
         });
         this.setState({
             cars: cars
@@ -149,17 +156,18 @@ class UserHome extends Component {
     };
 
     renderBox = () => {
-        if (!this.state.isEditingContact){
+        if (!this.state.isEditingContact) {
             return <SearchContent ref={ref => {
                 this.control = ref;
             }} navigation={this.props.navigation} userLocation={this.state.userLocation}
-                                  stations={this.state.stations} updateRoute={this.updateRoutes} contact={this.state.contact}/>
+                                  stations={this.state.stations} updateRoute={this.updateRoutes}
+                                  contact={this.state.contact}/>
         }
     };
 
     renderNumber = () => {
-        if (this.state.isEditingContact){
-            return(<View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+        if (this.state.isEditingContact) {
+            return (<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <Dialog>
                     <Dialog.Title><Text>Enter Contact Number</Text></Dialog.Title>
                     <Dialog.Content>
