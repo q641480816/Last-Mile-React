@@ -21,7 +21,7 @@ function connect() {
 //        stompClient.subscribe('/topic/greetings', function (greeting) {
 //            showGreeting(JSON.parse(greeting.body).content);
 //        });
-        stompClient.subscribe('/topic/location', function (list) {
+        stompClient.subscribe('/topic/dispatch', function (list) {
             console.log(list);
             assignedDriver(JSON.parse(list.body));
         });

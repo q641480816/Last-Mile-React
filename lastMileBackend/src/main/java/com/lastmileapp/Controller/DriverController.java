@@ -30,9 +30,7 @@ public class DriverController {
 
     @RequestMapping(value = "waiting", method=RequestMethod.GET)
     public List<Driver> getWaitingDriverBystation(@RequestParam("stationId") int stationId) {
-
         return driverService.getWaitingDriverByStation(stationId);
-
     }
 
     @RequestMapping(value = "passenger", method=RequestMethod.GET)
@@ -69,9 +67,7 @@ public class DriverController {
             synchronized(dispatchList) {
                 dispatchList.add(plateNum);
             }
-
         }
-
         return result;
     }
 
@@ -96,12 +92,6 @@ public class DriverController {
         return result;
 
     }
-
-
-
-
-
-
 
 
 }

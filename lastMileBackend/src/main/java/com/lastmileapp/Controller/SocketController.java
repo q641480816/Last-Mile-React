@@ -37,7 +37,13 @@ public class SocketController {
     @Scheduled(fixedRate = 500)
     public void dispatch() throws Exception {
         Thread.sleep(1000); // simulated delay 1 second
-        this.template.convertAndSend("/topic/dispatch", dispatchList);
+        ArrayList<Driver> result = new ArrayList<>();
+        synchronized (dispatchList) {
+            for (String plateNum : dispatchList) {
+                result.add(driverService.getDriverByPlateNum(plateNum));
+            }
+        }
+        this.template.convertAndSend("/topic/dispatch", result);
     }
 
     @Scheduled(fixedRate = 500)

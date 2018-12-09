@@ -31,7 +31,7 @@ public class DriverService {
 
 
 
-    public static Map<Integer, String> passengerStatus = new HashMap<>();
+    Map<Integer, String> passengerStatus = new HashMap<>();
     Map<Integer,String> assignedDrivers = SocketController.assignedDriver;
     Map<Integer,ArrayList<Integer>> passengerDest = new HashMap<>();
 
@@ -91,7 +91,6 @@ public class DriverService {
             return (passengerDest.get(contact).get(0));
         }else{
             return 0;
-
         }
     }
 
@@ -100,7 +99,6 @@ public class DriverService {
             return (passengerDest.get(contact).get(1));
         }else{
             return 0;
-
         }
 
     }
@@ -137,8 +135,10 @@ public class DriverService {
                 passengerStatus.put(contact, "requested");
             }
             ArrayList<Integer> dest= new ArrayList<>(Arrays.asList(stationId,nodeId));
-            passengerDest.put(contact,dest);
-            assignDriver(stationId, contact);
+            synchronized (passengerDest) {
+                passengerDest.put(contact, dest);
+            }
+            assignDriver(stationId);
             return true;
 
         }
@@ -146,7 +146,7 @@ public class DriverService {
         return false;
     }
 
-    public void assignDriver(int stationId, int contact){
+    public void assignDriver(int stationId){
         Station s = stationRepository.getStationById(stationId);
         Map<Integer, LinkedList<Integer>> stationQueues= s.getQueues();
         List<Driver> drivers = driverService.getWaitingDriverByStation(stationId);
@@ -243,7 +243,6 @@ public class DriverService {
 
         return false;
 
-
     }
 
     public boolean readToDispatch(String plateNum){
@@ -251,11 +250,9 @@ public class DriverService {
         if(d!=null) {
             if (d.getNumOfOnboard()>=d.getCapacity()){
                 return true;
-
             }
         }
         return false;
-
     }
 
     public boolean disPatch(String plateNum){
@@ -268,10 +265,7 @@ public class DriverService {
             driverRepository.save(d);
             return true;
         }
-
         return false;
-
-
     }
 
     public boolean returnToStation(String plateNum){
@@ -289,7 +283,9 @@ public class DriverService {
                 passengerStatus.replaceAll((k, v) -> "unrequested");
             }
             ArrayList<Integer> dest= new ArrayList<>(Arrays.asList(0,0));
-            passengerDest.replaceAll((k,v) -> dest);
+            synchronized (passengerDest) {
+                passengerDest.replaceAll((k, v) -> dest);
+            }
             synchronized(assignedDrivers) {
                 assignedDrivers.values().removeIf(val -> plateNum.equals(val));
             }
