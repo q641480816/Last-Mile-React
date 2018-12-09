@@ -46,7 +46,7 @@ public class DriverController {
     @RequestMapping(value="update", method=RequestMethod.POST)
     public HashMap<String,Boolean> update(@RequestParam("longitude") double longitude, @RequestParam("latitude") double latitude, @RequestParam("plateNum") String plateNum) {
         HashMap<String, Boolean> result = new HashMap<>();
-        result.put("plateNum",driverService.updateDriverLocation(longitude,latitude,plateNum));
+        result.put("status",driverService.updateDriverLocation(longitude,latitude,plateNum));
         return result;
     }
 
