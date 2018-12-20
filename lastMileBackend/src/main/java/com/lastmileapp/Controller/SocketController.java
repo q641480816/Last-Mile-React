@@ -36,7 +36,6 @@ public class SocketController {
 
     @Scheduled(fixedRate = 500)
     public void dispatch() throws Exception {
-        Thread.sleep(1000); // simulated delay 1 second
         ArrayList<Driver> result = new ArrayList<>();
         synchronized (dispatchList) {
             for (String plateNum : dispatchList) {
@@ -48,15 +47,11 @@ public class SocketController {
 
     @Scheduled(fixedRate = 500)
     public void retrieveLocation() throws Exception {
-        Thread.sleep(1000); // simulated delay 1 second
         this.template.convertAndSend("/topic/location", driverRepository.findAll());
-
-
     }
 
     @Scheduled(fixedRate = 500)
     public void retrieveAssignedDriver() throws Exception{
-        Thread.sleep(1000); // simulated delay 1 second
         Map<Integer,Driver> result = new HashMap<>();
         for (Integer key: assignedDriver.keySet()){
             result.put(key, driverService.getDriverByPlateNum(assignedDriver.get(key)));

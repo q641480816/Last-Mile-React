@@ -21,4 +21,10 @@ public class NodeController {
     }
 
 
+    @RequestMapping(method=RequestMethod.GET)
+    public Node getNodeById(@RequestParam("id") int nodeId) {
+        return nodeService.getNodeById(nodeId);
+    }
+
+
 }
