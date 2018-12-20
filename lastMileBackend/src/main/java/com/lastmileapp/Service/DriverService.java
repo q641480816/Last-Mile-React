@@ -36,6 +36,7 @@ public class DriverService {
     Map<Integer,ArrayList<Integer>> passengerDest = new HashMap<>();
 
 
+    public List<Driver> getAllDrivers() {return driverRepository.findAll();}
 
     public List<Driver> getWaitingDriverByStation(int stationId) {
         ArrayList<Driver> waitingDrivers = new ArrayList<>();

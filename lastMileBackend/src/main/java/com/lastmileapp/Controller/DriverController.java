@@ -33,6 +33,12 @@ public class DriverController {
         return driverService.getWaitingDriverByStation(stationId);
     }
 
+    @CrossOrigin(origins="http://localhost:4200")
+    @RequestMapping(value="all", method=RequestMethod.GET)
+    public List<Driver> getAllDrivers(){
+        return driverService.getAllDrivers();
+    }
+
     @RequestMapping(value = "passenger", method=RequestMethod.GET)
     public HashMap<String,Object> getPassenger(@RequestParam("contact") int contact) {
         HashMap<String, Object> result = new HashMap<>();

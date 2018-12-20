@@ -16,6 +16,7 @@ public class StationController {
     @Autowired
     StationService stationService;
 
+    @CrossOrigin(origins="http://localhost:4200")
     @RequestMapping(value = "all", method= RequestMethod.GET)
     public List<Station> getAll() {
         return stationService.getAll();

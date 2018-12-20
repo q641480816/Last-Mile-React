@@ -13,5 +13,8 @@ public interface DriverRepository extends JpaRepository<Driver,String>{
     Driver findByPlateNum(String plateNum);
 
 
+    List<Driver> findAll();
+
+
 
 }
