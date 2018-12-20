@@ -33,7 +33,7 @@ public class DriverController {
         return driverService.getWaitingDriverByStation(stationId);
     }
 
-    @CrossOrigin(origins="http://localhost:4200")
+    @CrossOrigin(origins="http://35.247.175.250:8080")
     @RequestMapping(value="all", method=RequestMethod.GET)
     public List<Driver> getAllDrivers(){
         return driverService.getAllDrivers();
