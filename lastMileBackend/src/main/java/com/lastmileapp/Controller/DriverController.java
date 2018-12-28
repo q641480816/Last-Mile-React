@@ -33,7 +33,7 @@ public class DriverController {
         return driverService.getWaitingDriverByStation(stationId);
     }
 
-    @CrossOrigin(origins="http://35.247.175.250:8080")
+    @CrossOrigin(origins = {"http://35.247.175.250:8080", "http://localhost:4200"})
     @RequestMapping(value="all", method=RequestMethod.GET)
     public List<Driver> getAllDrivers(){
         return driverService.getAllDrivers();
@@ -56,6 +56,11 @@ public class DriverController {
         return result;
     }
 
+    @RequestMapping(value="dispatch", method=RequestMethod.GET)
+    public List<String> getDispatchList(){
+        return SocketController.dispatchList;
+    }
+
 
     @RequestMapping(value="request", method=RequestMethod.POST)
     public HashMap<String,Boolean> request(@RequestParam("stationId") int stationId, @RequestParam("nodeId") int nodeId, @RequestParam("contact") int contact) {
@@ -71,7 +76,9 @@ public class DriverController {
         if(driverService.readToDispatch(plateNum)){
             List<String> dispatchList= SocketController.dispatchList;
             synchronized(dispatchList) {
-                dispatchList.add(plateNum);
+                if(!dispatchList.contains(plateNum)) {
+                    dispatchList.add(plateNum);
+                }
             }
         }
         return result;

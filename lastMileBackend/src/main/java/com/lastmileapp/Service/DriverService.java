@@ -263,6 +263,7 @@ public class DriverService {
             synchronized (passengerStatus) {
                 passengerStatus.replaceAll((k, v) -> "driving");
             }
+
             driverRepository.save(d);
             return true;
         }
